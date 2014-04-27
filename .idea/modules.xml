@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/StoryMachine.iml" filepath="$PROJECT_DIR$/StoryMachine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mirame/mirame.iml" filepath="$PROJECT_DIR$/mirame/mirame.iml" />
+    </modules>
+  </component>
+</project>
+
