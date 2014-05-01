@@ -5,7 +5,7 @@ android:layout_width="fill_parent"
 android:layout_height="fill_parent"
     >
 
-<RelativeLayout
+<FrameLayout
     android:id="@+id/camera_preview"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -25,20 +25,22 @@ android:layout_height="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="#00000000"
+        android:textColor="#FFFFFFFF"
+        android:textSize="150pt"
         android:id="@+id/textbox"
         />
 
 
 
-</RelativeLayout>
+</FrameLayout>
 
-<Button
+<!--Button
     android:id="@+id/button_capture"
     android:text="Capture"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
-    />
+    /-->
 
 
 

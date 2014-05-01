@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -22,6 +23,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -47,6 +49,8 @@ public class CameraActivity extends Activity {
     private File pictureFile = null;
     //private TextView textBox = (TextView)findViewById(R.id.textbox);
     private int scannedFlag = 0;
+    public static final int FLIP_VERTICAL = 1;
+    public static final int FLIP_HORIZONTAL = 2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,75 +70,74 @@ public class CameraActivity extends Activity {
 //        catch(Exception e){}
         // Create our Preview view and set it as the content of our activity.
         mPreview = new CameraPreview(this, mCamera);
-        final RelativeLayout preview = (RelativeLayout) findViewById(R.id.camera_preview);
+        final FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         //ImageView preview = (ImageView) findViewById(R.id.photoReview);
         preview.addView(mPreview,0);
         // Add a listener to the Capture button
-        Button captureButton = (Button) findViewById(R.id.button_capture);
-        captureButton.setOnClickListener(
-            new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // get an image from the camera
-                    final TextView textBox = (TextView)findViewById(R.id.textbox);
-                    textBox.setText("3");
-                    new CountDownTimer(4000, 1000) {
-                        public void onTick(long millisUntilFinished) {
-                            textBox.setText(""+millisUntilFinished / 1000);
-                            preview.invalidate();
-                        }
-                        public void onFinish() {
-                            textBox.setText("");
-                            Log.i("TAG", "Taking picture...");
-                            mCamera.takePicture(null, null, mPicture);
-                        }
-                    }.start();
-                    new CountDownTimer(6000, 6000) {
-                        public void onTick(long millisUntilFinished) {
-                            //textBox.setText(""+millisUntilFinished / 1000);
-                        }
-                        public void onFinish() {
+//        Button captureButton = (Button) findViewById(R.id.button_capture);
+//        captureButton.setOnClickListener(
+//            new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    // get an image from the camera
+//                    photoTaker();
+//                }
+//            }
+//        );
+
+
+    }
+
+    public void photoTaker(){
+        final TextView textBox = (TextView)findViewById(R.id.textbox);
+        textBox.setText("3");
+        new CountDownTimer(4000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                textBox.setText(""+millisUntilFinished / 1000);
+                //preview.invalidate();
+            }
+            public void onFinish() {
+                textBox.setText("");
+                Log.i("TAG", "Taking picture...");
+                mCamera.takePicture(null, null, mPicture);
+            }
+        }.start();
+        new CountDownTimer(6000, 6000) {
+            public void onTick(long millisUntilFinished) {
+                //textBox.setText(""+millisUntilFinished / 1000);
+            }
+            public void onFinish() {
 //                            setContentView(R.layout.activity_main);
 //                            ImageView jpgView = (ImageView)findViewById(R.id.photoReview);
 //                            jpgView.setVisibility(View.VISIBLE);
 //                            showLastPhoto();
-                        }
-                    }.start();
-                    new CountDownTimer(9000, 9000) {
-                        public void onTick(long millisUntilFinished) {
-                            //textBox.setText(""+millisUntilFinished / 1000);
-                        }
-                        public void onFinish() {
+            }
+        }.start();
+        new CountDownTimer(9000, 9000) {
+            public void onTick(long millisUntilFinished) {
+                //textBox.setText(""+millisUntilFinished / 1000);
+            }
+            public void onFinish() {
 //                            setContentView(R.layout.activity_main);
 //                            ImageView jpgView = (ImageView)findViewById(R.id.photoReview);
 //                            jpgView.setVisibility(View.INVISIBLE);
+//                            jpgView.setImageURI(null);
 //                            jpgView.invalidate();
+//
+//                            FrameLayout wiper = (FrameLayout)findViewById(R.id.camera_preview);
+//                            wiper.invalidate();
 
-                            mCamera.startPreview();
-                        }
-                    }.start();
-                    //textBox.setText("1");
-                    //mCamera.startPreview();
-                    //AsyncTaskRunner runner = new AsyncTaskRunner();
-                    //runner.execute("1000");
-
-                }
+                mCamera.startPreview();                 //doesn't work here?
             }
-        );
-        if(scannedFlag == 1){
-            Log.i("TAG", "Trying showLast...");
-            showLastPhoto();
-            scannedFlag = 0;
-        }
+        }.start();
+        //mCamera.startPreview();                         //doesn't work here
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent msg) {
 
         if(keyCode == KeyEvent.KEYCODE_R){
-            mCamera.takePicture(null, null, mPicture);
-            try{Thread.sleep(1000);} catch (Exception e){}
-            showLastPhoto();
+            photoTaker();
         }
         else if(keyCode == KeyEvent.KEYCODE_B) {}
         else if(keyCode == KeyEvent.KEYCODE_Y) {}
@@ -181,14 +184,17 @@ public class CameraActivity extends Activity {
             //Uri external = Uri.fromFile(pictureFile);
             //jpgView.setImageURI(null);
             //jpgView.setImageURI(external);
-            jpgView.setRotation(180);
+            jpgView.setRotation(270);
 
             Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath) ;  ///-----------------------------
-            jpgView.setImageBitmap(bitmap);
+
+            jpgView.setImageBitmap(flipImage(bitmap,1));
         } catch (Exception e) {
             Log.e(getString(R.string.app_name), "Thrown in showLastPhoto" + e.getMessage());
             e.printStackTrace();
         }
+        try{Thread.sleep(1000);} catch (Exception e){Log.i("TAG", "Didn't Sleep.");}
+        mCamera.startPreview();
     }
 
     private void scanFile(String path) {
@@ -199,7 +205,6 @@ public class CameraActivity extends Activity {
 
                     public void onScanCompleted(String path, Uri uri) {
                         Log.i("TAG", "Finished scanning " + path);
-                        scannedFlag = 1;
 
                     }
                 });
@@ -403,6 +408,26 @@ public class CameraActivity extends Activity {
     }*/
 
 
+    public Bitmap flipImage(Bitmap src, int type) {
+        // create new matrix for transformation
+        Matrix matrix = new Matrix();
+        // if vertical
+        if(type == FLIP_VERTICAL) {
+            // y = y * -1
+            matrix.preScale(1.0f, -1.0f);
+        }
+        // if horizontal
+        else if(type == FLIP_HORIZONTAL) {
+            // x = x * -1
+            matrix.preScale(-1.0f, 1.0f);
+            // unknown type
+        } else {
+            return null;
+        }
 
+        // return transformed image
+        return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
+    }
 }
+
 
